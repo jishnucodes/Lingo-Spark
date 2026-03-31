@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { generateQuizFromWords } from "@/lib/gemini";
+import type { Word } from "@prisma/client";
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
     const selected = words.sort(() => 0.5 - Math.random()).slice(0, 5);
 
     const quizData = await generateQuizFromWords(
-      selected.map(w => ({ term: w.term, definition: w.definition, translation: w.translation }))
+      selected.map((w: Word) => ({ term: w.term, definition: w.definition, translation: w.translation }))
     );
 
     return NextResponse.json(quizData);

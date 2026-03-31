@@ -8,13 +8,15 @@ export async function POST(req: Request) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
+  const userId = session.user.id;
+
   try {
     const { score, total, results } = await req.json();
     
     // Save quiz history
     await prisma.quiz.create({
       data: {
-        userId: session.user.id,
+        userId,
         score,
         totalWords: total
       }
@@ -23,7 +25,7 @@ export async function POST(req: Request) {
     // Update SM-2 spaced repetition for each word
     const updates = results.map(async (r: any) => {
       const word = await prisma.word.findFirst({
-        where: { term: r.term, userId: session.user.id }
+        where: { term: r.term, userId }
       });
       if (!word) return;
 
